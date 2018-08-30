@@ -7,6 +7,11 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "/GXpbNPyNG3DNmJaMQpM2egHehg=",
+			"path": "github.com/bbuchalter/logerror",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "VCKsz7001qwfA2bHLo/AOn0xos0=",
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "bf7f34fef176d890dfcc6e94319ac747291bc09a",
