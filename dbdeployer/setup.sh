@@ -1,30 +1,15 @@
+#!/bin/bash
+
 set -e
 
-if [ -z "$MYSQL_USER" ]; then
-    echo "Please provide MYSQL_USER as an environment variable when calling this script."
-    exit 1
-fi
-if [ -z "$MYSQL_PASS" ]; then
-    echo "Please provide MYSQL_PASS as an environment variable when calling this script."
-    exit 1
-fi
-if [ -z "$MYSQL_HOST" ]; then
-    echo "Please provide MYSQL_HOST as an environment variable when calling this script."
-    exit 1
-fi
-if [ -z "$MYSQL_PORT" ]; then
-    echo "Please provide MYSQL_PORT as an environment variable when calling this script."
-    exit 1
-fi
 if [ -z "$MYSQL_VERSION" ]; then
     echo "Please provide MYSQL_VERSION as an environment variable when calling this script."
     exit 1
 fi
 if [ -z "$DESCRIPTION" ]; then
-    echo "Please provide SANDBOX_PREFIX as an environment variable when calling this script."
+    echo "Please provide DESCRIPTION as an environment variable when calling this script."
     exit 1
 fi
-
 
 if [ -n "$CI" ]; then
   set -x
@@ -90,16 +75,9 @@ else
   echo "MySQL $MYSQL_VERSION setup in dbdeployer! "
 fi
 
-echo "Rebuilding MySQL instance..."
-$DBD_CMD deploy single $MYSQL_VERSION \
---force \
---db-user $MYSQL_USER \
---db-password $MYSQL_PASS \
---port $MYSQL_PORT \
---bind-address $MYSQL_HOST \
+echo ""
+echo "Use the following command to work with this setup of dbdeployer:"
+echo $DBD_CMD
 
-echo "Reporting status..."
-$DBD_CMD global status 
-
-echo "This dbdeployer sandbox can be controlled from:"
-echo $DBD_SANDBOX_PATH/msb_${MYSQL_VERSION//./_} # replace 5.7.32 with 5_7_32
+echo "Use the following directory to manage the deployment:"
+echo "$DBD_SANDBOX_PATH/msb_${MYSQL_VERSION//./_}" # replace 5.7.23 with 5_7_23

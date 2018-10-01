@@ -205,21 +205,60 @@ test_all() {
 
 start_db() {
   if [ "$db_type" == "mysql" ]; then
-    echo "Starting MySQL"
-    MYSQL_VERSION=$MYSQL_VERSION MYSQL_USER=$MYSQL_USER MYSQL_PASS=$MYSQL_PASS MYSQL_HOST=$MYSQL_HOST MYSQL_PORT=$MYSQL_PORT DESCRIPTION=$SANDBOX_DESCRIPTION $dbd_path/setup.sh | tee $dbd_path/setup.log
+    DBD_SETUP_LOG=$tests_path/mysql_setup.log
+
+    echo "Setup MySQL with DB Deployer..."
+    echo "Step 1: Prepare DB Deployer..."
+    echo "Logs for this are stored in $DBD_SETUP_LOG"
+    MYSQL_VERSION=$MYSQL_VERSION DESCRIPTION=$SANDBOX_DESCRIPTION $dbd_path/setup.sh > $DBD_SETUP_LOG
+
     if [ $? -ne 0 ]; then
-      echo "start_db failed"
+      echo "Preparing DB Deployer failed"
       return 1
     fi
-    sandbox_path=$(tail -n 1 $dbd_path/setup.log) # get last line of output from dbdeployer setup.log
-    cp $sandbox_path/my.sandbox.cnf $test_mysql_config_file
+
+    echo "Step 2: Deploy MySQL instance..."
+    DBD_CMD=$(grep -A 1 "Use the following command to work with this setup" $DBD_SETUP_LOG | tail -n 1)
+    if [ -z "$DBD_CMD" ]; then
+        echo "Could not find the DB deployer command in $DBD_SETUP_LOG"
+        return 1
+    fi
+    $DBD_CMD deploy single $MYSQL_VERSION \
+        --force \
+        --db-user $MYSQL_USER \
+        --db-password $MYSQL_PASS \
+        --port $MYSQL_PORT \
+        --bind-address $MYSQL_HOST
+    if [ $? -ne 0 ]; then
+      echo "Deploying MySQL with dbdeployer failed"
+      return 1
+    fi
+
+    $DBD_CMD global status
+    if [ $? -ne 0 ]; then
+      echo "Could not get the status of the deployed MySQL instance"
+      return 1
+    fi
+
+    echo "Step 3: Get the deployed MySQL config file for our use..."
+    SANDBOX_PATH=$(grep -A 1 "Use the following directory to manage the deployment" $DBD_SETUP_LOG | tail -n 1)
+    if [ -z "$SANDBOX_PATH" ]; then
+        echo "Could not find the directory to get the MySQL client config in $DBD_SETUP_LOG"
+        return 1
+    fi
+
+    cp $SANDBOX_PATH/my.sandbox.cnf $test_mysql_config_file
+    if [ -z "$SANDBOX_PATH" ]; then
+        echo "Could not copy $SANDBOX_PATH/my.sandbox.cnf to $test_mysql_config_file"
+        return 1
+    fi
   fi
 }
 
 stop_db() {
   if [ "$db_type" == "mysql" ]; then
     echo "Stopping MySQL"
-    $sandbox_path/stop
+    $SANDBOX_PATH/stop
   fi
 }
 
