@@ -66,7 +66,7 @@ Authored by [Shlomi Noach](https://github.com/shlomi-noach) at [GitHub](http://g
 
 #### Developers
 
-Get started developing Orchestrator by [reading the developer docs](/docs/developers.md). Thanks for your interest!
+Get started developing Orchestrator by [reading the developer README](/developers). Thanks for your interest!
 
 #### License
 

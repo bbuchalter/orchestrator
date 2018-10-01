@@ -22,3 +22,4 @@ main
 bin
 dbdeployer/sandboxes
 dbdeployer/bin
+developers/sqlite/*.sqlite*
