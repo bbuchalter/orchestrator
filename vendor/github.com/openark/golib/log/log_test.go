@@ -239,6 +239,78 @@ func TestCriticalf(t *testing.T) {
 	}
 }
 
+func TestLogLevelFromString(t *testing.T) {
+	var result LogLevel
+	var err error
+
+	result, err = LogLevelFromString("FATAL")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 0 {
+		t.Errorf("Expected LogLevel for FATAL to be 0, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("CRITICAL")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 1 {
+		t.Errorf("Expected LogLevel for CRITICAL to be 1, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("ERROR")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 2 {
+		t.Errorf("Expected LogLevel for ERROR to be 2, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("WARNING")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 3 {
+		t.Errorf("Expected LogLevel for WARNING to be 3, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("NOTICE")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 4 {
+		t.Errorf("Expected LogLevel for NOTICE to be 4, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("INFO")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 5 {
+		t.Errorf("Expected LogLevel for INFO to be 5, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("DEBUG")
+	if err != nil {
+		t.Error(err)
+	}
+	if result != 6 {
+		t.Errorf("Expected LogLevel for DEBUG to be 6, but was %s", result)
+	}
+
+	result, err = LogLevelFromString("INVALID")
+	if err == nil {
+		t.Error("Expected an error not none was returned.")
+	}
+	if err.Error() != "Unknown LogLevel name: INVALID" {
+		t.Errorf("Expected 'Unknown LogLevel name: INVALID' but was '%s'", err.Error())
+	}
+	if result != 0 {
+		t.Errorf("Expected a return value of 0, but was %s", result)
+	}
+}
+
 func stubNow() {
 	// Overwrite the package level now variable with a fixed time
 	now = func() time.Time {
