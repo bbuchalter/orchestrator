@@ -8,58 +8,53 @@ import (
 	"time"
 )
 
-func getLoggedOutput(t *testing.T, testSubject func() string) (testSubjectReturnValue string, loggedOutput string) {
-	// Keep a copy of the original logDestination
-	defaultLogDestination := GetLogDestination()
-	// Restore original logDestination when func completes
-	defer SetLogDestination(defaultLogDestination)
-
-	// Create a pipe to capture log output
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		t.Error(err)
-	}
-	SetLogDestination(writer)
-
-	// copy the output in a separate goroutine so printing can't block indefinitely
-	outputChannel := make(chan string)
-	go func() {
-		var buf bytes.Buffer
-		io.Copy(&buf, reader)
-		outputChannel <- buf.String()
-	}()
-
-	// Test subject
-	testSubjectReturnValue = testSubject()
-
-	// Close pipe and collect log output
-	writer.Close()
-	loggedOutput = <-outputChannel
-
-	return
+type loggingTestCase struct {
+	description          string
+	preTest              func(t *testing.T)
+	expectedReturnValue  string
+	expectedLoggedOutput string
+	testSubject          func() string
 }
 
-func TestNotice(t *testing.T) {
-	stubNow()
-	var result, expectedResult, output string
+var loggingTestCases = []*loggingTestCase{
+	&loggingTestCase{
+		description: "Notice logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 NOTICE this is a Notice message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 NOTICE this is a Notice message\n",
+		testSubject:          func() string { return Notice("this is a Notice message") },
+	},
+	&loggingTestCase{
+		description: "Notice logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 NOTICE this is a Notice message a b c",
+		expectedLoggedOutput: "1974-05-19 01:02:03 NOTICE this is a Notice message a b c\n",
+		testSubject:          func() string { return Notice("this is a Notice message", "a", "b", "c") },
+	},
+}
 
-	result, output = getLoggedOutput(t, func() string { return Notice("this is a Notice message") })
+func TestLoggingTestCases(t *testing.T) {
+	for _, testCase := range loggingTestCases {
+		t.Run(testCase.description, func(t *testing.T) {
 
-	// Assertions
-	expectedResult = "1974-05-19 01:02:03 NOTICE this is a Notice message"
-	expectedLogged := expectedResult + "\n"
-	if result != expectedResult {
-		t.Errorf("Expected return '%s' but got '%s'", expectedResult, result)
-	}
-	if output != expectedLogged {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedLogged, output)
-	}
+			// Run any code needed before the test begins
+			if testCase.preTest != nil {
+				testCase.preTest(t)
+			}
 
-	// Test with args
-	result = Notice("this is a Notice message with variables", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 NOTICE this is a Notice message with variables a b c"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
+			returnValue, loggedOutput := getLoggedOutput(t, testCase.testSubject)
+
+			if returnValue != testCase.expectedReturnValue {
+				t.Errorf("Expected return of '%s' but got '%s'", testCase.expectedReturnValue, returnValue)
+			}
+			if loggedOutput != testCase.expectedLoggedOutput {
+				t.Errorf("Expected log output of '%s' but got '%s'", testCase.expectedLoggedOutput, loggedOutput)
+			}
+		})
 	}
 }
 
@@ -355,4 +350,35 @@ func stubNow() {
 	SetNow(func() time.Time {
 		return time.Date(1974, time.May, 19, 1, 2, 3, 4, time.UTC)
 	})
+}
+
+func getLoggedOutput(t *testing.T, testSubject func() string) (testSubjectReturnValue string, loggedOutput string) {
+	// Keep a copy of the original logDestination
+	defaultLogDestination := GetLogDestination()
+	// Restore original logDestination when func completes
+	defer SetLogDestination(defaultLogDestination)
+
+	// Create a pipe to capture log output
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Error(err)
+	}
+	SetLogDestination(writer)
+
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	outputChannel := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, reader)
+		outputChannel <- buf.String()
+	}()
+
+	// Test subject
+	testSubjectReturnValue = testSubject()
+
+	// Close pipe and collect log output
+	writer.Close()
+	loggedOutput = <-outputChannel
+
+	return
 }
