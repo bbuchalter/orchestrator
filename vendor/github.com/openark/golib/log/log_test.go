@@ -35,6 +35,96 @@ var loggingTestCases = []*loggingTestCase{
 		expectedLoggedOutput: "1974-05-19 01:02:03 NOTICE this is a Notice message a b c\n",
 		testSubject:          func() string { return Notice("this is a Notice message", "a", "b", "c") },
 	},
+	&loggingTestCase{
+		description: "Noticef logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 NOTICE this is a Noticef message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 NOTICE this is a Noticef message\n",
+		testSubject:          func() string { return Noticef("this is a Noticef message") },
+	},
+	&loggingTestCase{
+		description: "Noticef logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 NOTICE this is a Noticef message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 NOTICE this is a Noticef message\n",
+		testSubject:          func() string { return Noticef("%s %s a Noticef message", "this", "is") },
+	},
+	&loggingTestCase{
+		description: "Debug logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 DEBUG this is a Debug message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 DEBUG this is a Debug message\n",
+		testSubject:          func() string { return Debug("this is a Debug message") },
+	},
+	&loggingTestCase{
+		description: "Debug logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 DEBUG this is a Debug message a b c",
+		expectedLoggedOutput: "1974-05-19 01:02:03 DEBUG this is a Debug message a b c\n",
+		testSubject:          func() string { return Debug("this is a Debug message", "a", "b", "c") },
+	},
+	&loggingTestCase{
+		description: "Debugf logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 DEBUG this is a Debugf message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 DEBUG this is a Debugf message\n",
+		testSubject:          func() string { return Debugf("this is a Debugf message") },
+	},
+	&loggingTestCase{
+		description: "Debugf logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 DEBUG this is a Debugf message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 DEBUG this is a Debugf message\n",
+		testSubject:          func() string { return Debugf("%s %s a Debugf message", "this", "is") },
+	},
+	&loggingTestCase{
+		description: "Info logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 INFO this is a Info message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 INFO this is a Info message\n",
+		testSubject:          func() string { return Info("this is a Info message") },
+	},
+	&loggingTestCase{
+		description: "Info logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 INFO this is a Info message a b c",
+		expectedLoggedOutput: "1974-05-19 01:02:03 INFO this is a Info message a b c\n",
+		testSubject:          func() string { return Info("this is a Info message", "a", "b", "c") },
+	},
+	&loggingTestCase{
+		description: "Infof logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 INFO this is a Infof message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 INFO this is a Infof message\n",
+		testSubject:          func() string { return Infof("this is a Infof message") },
+	},
+	&loggingTestCase{
+		description: "Infof logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 INFO this is a Infof message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 INFO this is a Infof message\n",
+		testSubject:          func() string { return Infof("%s %s a Infof message", "this", "is") },
+	},
 }
 
 func TestLoggingTestCases(t *testing.T) {
@@ -55,101 +145,6 @@ func TestLoggingTestCases(t *testing.T) {
 				t.Errorf("Expected log output of '%s' but got '%s'", testCase.expectedLoggedOutput, loggedOutput)
 			}
 		})
-	}
-}
-
-func TestNoticef(t *testing.T) {
-	stubNow()
-	var result, expectedResult string
-
-	// Test no args
-	result = Noticef("this is a Notice message")
-	expectedResult = "1974-05-19 01:02:03 NOTICE this is a Notice message"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Noticef("this is a Notice message with variables %s %s %s", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 NOTICE this is a Notice message with variables a b c"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestDebug(t *testing.T) {
-	stubNow()
-	var result, expectedResult string
-
-	// Test no args
-	result = Debug("this is a Debug message")
-	expectedResult = "1974-05-19 01:02:03 DEBUG this is a Debug message"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Debug("this is a Debug message with variables", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 DEBUG this is a Debug message with variables a b c"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestDebugf(t *testing.T) {
-	stubNow()
-	var result, expectedResult string
-
-	// Test no args
-	result = Debugf("this is a Debug message")
-	expectedResult = "1974-05-19 01:02:03 DEBUG this is a Debug message"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Debugf("this is a Debug message with variables %s %s %s", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 DEBUG this is a Debug message with variables a b c"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestInfo(t *testing.T) {
-	stubNow()
-	var result, expectedResult string
-
-	// Test no args
-	result = Info("this is an Info message")
-	expectedResult = "1974-05-19 01:02:03 INFO this is an Info message"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Info("this is an Info message with variables", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 INFO this is an Info message with variables a b c"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestInfof(t *testing.T) {
-	stubNow()
-	var result, expectedResult string
-
-	// Test no args
-	result = Infof("this is an Info message")
-	expectedResult = "1974-05-19 01:02:03 INFO this is an Info message"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Infof("this is an Info message with variables %s %s %s", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 INFO this is an Info message with variables a b c"
-	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
 	}
 }
 
