@@ -10,16 +10,16 @@ import (
 
 func getLoggedOutput(t *testing.T, testSubject func() string) (testSubjectReturnValue string, loggedOutput string) {
 	// Keep a copy of the original logDestination
-	defaultLogDestination := logDestination
+	defaultLogDestination := GetLogDestination()
 	// Restore original logDestination when func completes
-	defer func() { logDestination = defaultLogDestination }()
+	defer SetLogDestination(defaultLogDestination)
 
 	// Create a pipe to capture log output
 	reader, writer, err := os.Pipe()
 	if err != nil {
 		t.Error(err)
 	}
-	logDestination = writer
+	SetLogDestination(writer)
 
 	// copy the output in a separate goroutine so printing can't block indefinitely
 	outputChannel := make(chan string)
@@ -352,7 +352,7 @@ func TestLogLevelFromString(t *testing.T) {
 
 func stubNow() {
 	// Overwrite the package level now variable with a fixed time
-	now = func() time.Time {
+	SetNow(func() time.Time {
 		return time.Date(1974, time.May, 19, 1, 2, 3, 4, time.UTC)
-	}
+	})
 }

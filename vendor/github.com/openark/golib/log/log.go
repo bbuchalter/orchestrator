@@ -25,12 +25,6 @@ import (
 	"time"
 )
 
-// now is a package variable which can be overwritten by tests
-var now = time.Now
-
-// logDestination is a package variable which can be overwritten by tests
-var logDestination = os.Stderr
-
 // LogLevel indicates the severity of a log entry
 type LogLevel int
 
@@ -86,6 +80,32 @@ const (
 
 const TimeFormat = "2006-01-02 15:04:05"
 
+// now is how we'll determine the timestamp for the log entry. Uses `time.Now` by default
+var now = time.Now
+
+// SetNow sets the function used to get the timestamp for the log entry
+func SetNow(nowFunc func() time.Time) {
+	now = nowFunc
+}
+
+// GetNow executes the function used to get the timestamp for the log entry
+func GetNow() time.Time {
+	return now()
+}
+
+// logDestination where the logged output will be sent
+var logDestination = os.Stderr
+
+// GetLogDestination returns the pointer to the file where logs should be written
+func GetLogDestination() *os.File {
+	return logDestination
+}
+
+// SetLogDestination sets where logs should be written
+func SetLogDestination(destination *os.File) {
+	logDestination = destination
+}
+
 // globalLogLevel indicates the global level filter for all logs (only entries with level equals or higher
 // than this value will be logged)
 var globalLogLevel LogLevel = DEBUG
@@ -133,8 +153,8 @@ func logFormattedEntry(logLevel LogLevel, message string, args ...interface{}) s
 		return ""
 	}
 	msgArgs := fmt.Sprintf(message, args...)
-	entryString := fmt.Sprintf("%s %s %s", now().Format(TimeFormat), logLevel, msgArgs)
-	fmt.Fprintln(logDestination, entryString)
+	entryString := fmt.Sprintf("%s %s %s", GetNow().Format(TimeFormat), logLevel, msgArgs)
+	fmt.Fprintln(GetLogDestination(), entryString)
 
 	if syslogWriter != nil {
 		go func() error {
