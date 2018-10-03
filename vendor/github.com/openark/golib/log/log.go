@@ -28,6 +28,9 @@ import (
 // now is a package variable which can be overwritten by tests
 var now = time.Now
 
+// logDestination is a package variable which can be overwritten by tests
+var logDestination = os.Stderr
+
 // LogLevel indicates the severity of a log entry
 type LogLevel int
 
@@ -131,7 +134,7 @@ func logFormattedEntry(logLevel LogLevel, message string, args ...interface{}) s
 	}
 	msgArgs := fmt.Sprintf(message, args...)
 	entryString := fmt.Sprintf("%s %s %s", now().Format(TimeFormat), logLevel, msgArgs)
-	fmt.Fprintln(os.Stderr, entryString)
+	fmt.Fprintln(logDestination, entryString)
 
 	if syslogWriter != nil {
 		go func() error {

@@ -1,19 +1,58 @@
 package log
 
 import (
+	"bytes"
+	"io"
+	"os"
 	"testing"
 	"time"
 )
 
+func getLoggedOutput(t *testing.T, testSubject func() string) (testSubjectReturnValue string, loggedOutput string) {
+	// Keep a copy of the original logDestination
+	defaultLogDestination := logDestination
+	// Restore original logDestination when func completes
+	defer func() { logDestination = defaultLogDestination }()
+
+	// Create a pipe to capture log output
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Error(err)
+	}
+	logDestination = writer
+
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	outputChannel := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, reader)
+		outputChannel <- buf.String()
+	}()
+
+	// Test subject
+	testSubjectReturnValue = testSubject()
+
+	// Close pipe and collect log output
+	writer.Close()
+	loggedOutput = <-outputChannel
+
+	return
+}
+
 func TestNotice(t *testing.T) {
 	stubNow()
-	var result, expectedResult string
+	var result, expectedResult, output string
 
-	// Test no args
-	result = Notice("this is a Notice message")
+	result, output = getLoggedOutput(t, func() string { return Notice("this is a Notice message") })
+
+	// Assertions
 	expectedResult = "1974-05-19 01:02:03 NOTICE this is a Notice message"
+	expectedLogged := expectedResult + "\n"
 	if result != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
+		t.Errorf("Expected return '%s' but got '%s'", expectedResult, result)
+	}
+	if output != expectedLogged {
+		t.Errorf("Expected log output of '%s' but got '%s'", expectedLogged, output)
 	}
 
 	// Test with args
