@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"os/exec"
 	"testing"
 	"time"
 )
@@ -273,6 +274,45 @@ func TestLoggingTestCases(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFatal(t *testing.T) {
+	if os.Getenv("TestFatal") == "1" {
+		Fatal("This is a fatal message")
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=TestFatal")
+	cmd.Env = append(os.Environ(), "TestFatal=1")
+	err := cmd.Run()
+	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+		return
+	}
+	t.Errorf("process ran but did not emit a non-zero exit code")
+}
+
+func TestFatalf(t *testing.T) {
+	if os.Getenv("TestFatalf") == "1" {
+		Fatalf("This is a fatal message")
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=TestFatalf")
+	cmd.Env = append(os.Environ(), "TestFatalf=1")
+	err := cmd.Run()
+	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+		return
+	}
+	t.Errorf("process ran but did not emit a non-zero exit code")
+}
+
+func TestFatale(t *testing.T) {
+	if os.Getenv("TestFatale") == "1" {
+		Fatale(errors.New("This is a fatal message"))
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=TestFatale")
+	cmd.Env = append(os.Environ(), "TestFatale=1")
+	err := cmd.Run()
+	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+		return
+	}
+	t.Errorf("process ran but did not emit a non-zero exit code")
 }
 func TestLogLevelFromString(t *testing.T) {
 	var result LogLevel
