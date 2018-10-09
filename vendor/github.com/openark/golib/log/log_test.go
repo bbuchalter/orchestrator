@@ -2,6 +2,7 @@ package log
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"testing"
@@ -180,6 +181,15 @@ var loggingTestCases = []*loggingTestCase{
 		testSubject:          func() string { return Error("this is a Error message", "a", "b", "c").Error() },
 	},
 	&loggingTestCase{
+		description: "Errore logs errors",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "this is a Error message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 ERROR this is a Error message\n",
+		testSubject:          func() string { return Errore(errors.New("this is a Error message")).Error() },
+	},
+	&loggingTestCase{
 		description: "Errorf logs messages",
 		preTest: func(t *testing.T) {
 			stubNow()
@@ -214,6 +224,15 @@ var loggingTestCases = []*loggingTestCase{
 		expectedReturnValue:  "1974-05-19 01:02:03 CRITICAL this is a Critical message a b c",
 		expectedLoggedOutput: "1974-05-19 01:02:03 CRITICAL this is a Critical message a b c\n",
 		testSubject:          func() string { return Critical("this is a Critical message", "a", "b", "c").Error() },
+	},
+	&loggingTestCase{
+		description: "Criticale logs errors",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "this is a Critical message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 CRITICAL this is a Critical message\n",
+		testSubject:          func() string { return Criticale(errors.New("this is a Critical message")).Error() },
 	},
 	&loggingTestCase{
 		description: "Criticalf logs messages",
