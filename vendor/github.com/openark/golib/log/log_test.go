@@ -125,6 +125,114 @@ var loggingTestCases = []*loggingTestCase{
 		expectedLoggedOutput: "1974-05-19 01:02:03 INFO this is a Infof message\n",
 		testSubject:          func() string { return Infof("%s %s a Infof message", "this", "is") },
 	},
+	&loggingTestCase{
+		description: "Warning logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 WARNING this is a Warning message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 WARNING this is a Warning message\n",
+		testSubject:          func() string { return Warning("this is a Warning message").Error() },
+	},
+	&loggingTestCase{
+		description: "Warning logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 WARNING this is a Warning message a b c",
+		expectedLoggedOutput: "1974-05-19 01:02:03 WARNING this is a Warning message a b c\n",
+		testSubject:          func() string { return Warning("this is a Warning message", "a", "b", "c").Error() },
+	},
+	&loggingTestCase{
+		description: "Warningf logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 WARNING this is a Warning message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 WARNING this is a Warning message\n",
+		testSubject:          func() string { return Warningf("this is a Warning message").Error() },
+	},
+	&loggingTestCase{
+		description: "Warningf logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 WARNING this is a Warning message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 WARNING this is a Warning message\n",
+		testSubject:          func() string { return Warningf("%s %s a Warning message", "this", "is").Error() },
+	},
+	&loggingTestCase{
+		description: "Error logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 ERROR this is a Error message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 ERROR this is a Error message\n",
+		testSubject:          func() string { return Error("this is a Error message").Error() },
+	},
+	&loggingTestCase{
+		description: "Error logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 ERROR this is a Error message a b c",
+		expectedLoggedOutput: "1974-05-19 01:02:03 ERROR this is a Error message a b c\n",
+		testSubject:          func() string { return Error("this is a Error message", "a", "b", "c").Error() },
+	},
+	&loggingTestCase{
+		description: "Errorf logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 ERROR this is a Error message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 ERROR this is a Error message\n",
+		testSubject:          func() string { return Errorf("this is a Error message").Error() },
+	},
+	&loggingTestCase{
+		description: "Errorf logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 ERROR this is a Error message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 ERROR this is a Error message\n",
+		testSubject:          func() string { return Errorf("%s %s a Error message", "this", "is").Error() },
+	},
+	&loggingTestCase{
+		description: "Critical logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 CRITICAL this is a Critical message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 CRITICAL this is a Critical message\n",
+		testSubject:          func() string { return Critical("this is a Critical message").Error() },
+	},
+	&loggingTestCase{
+		description: "Critical logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 CRITICAL this is a Critical message a b c",
+		expectedLoggedOutput: "1974-05-19 01:02:03 CRITICAL this is a Critical message a b c\n",
+		testSubject:          func() string { return Critical("this is a Critical message", "a", "b", "c").Error() },
+	},
+	&loggingTestCase{
+		description: "Criticalf logs messages",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 CRITICAL this is a Critical message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 CRITICAL this is a Critical message\n",
+		testSubject:          func() string { return Criticalf("this is a Critical message").Error() },
+	},
+	&loggingTestCase{
+		description: "Criticalf logs messages and additional variables",
+		preTest: func(t *testing.T) {
+			stubNow()
+		},
+		expectedReturnValue:  "1974-05-19 01:02:03 CRITICAL this is a Critical message",
+		expectedLoggedOutput: "1974-05-19 01:02:03 CRITICAL this is a Critical message\n",
+		testSubject:          func() string { return Criticalf("%s %s a Critical message", "this", "is").Error() },
+	},
 }
 
 func TestLoggingTestCases(t *testing.T) {
@@ -147,127 +255,6 @@ func TestLoggingTestCases(t *testing.T) {
 		})
 	}
 }
-
-func TestWarning(t *testing.T) {
-	stubNow()
-	var result error
-	var expectedResult string
-
-	// Test no args
-	result = Warning("this is an Warning message")
-	expectedResult = "1974-05-19 01:02:03 WARNING this is an Warning message"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Warning("this is an Warning message with variables", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 WARNING this is an Warning message with variables a b c"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestWarningf(t *testing.T) {
-	stubNow()
-	var result error
-	var expectedResult string
-
-	// Test no args
-	result = Warningf("this is an Warning message")
-	expectedResult = "1974-05-19 01:02:03 WARNING this is an Warning message"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Warningf("this is an Warning message with variables %s %s %s", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 WARNING this is an Warning message with variables a b c"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestError(t *testing.T) {
-	stubNow()
-	var result error
-	var expectedResult string
-
-	// Test no args
-	result = Error("this is an Error message")
-	expectedResult = "1974-05-19 01:02:03 ERROR this is an Error message"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Error("this is an Error message with variables", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 ERROR this is an Error message with variables a b c"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestErrorf(t *testing.T) {
-	stubNow()
-	var result error
-	var expectedResult string
-
-	// Test no args
-	result = Errorf("this is an Error message")
-	expectedResult = "1974-05-19 01:02:03 ERROR this is an Error message"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Errorf("this is an Error message with variables %s %s %s", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 ERROR this is an Error message with variables a b c"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestCritical(t *testing.T) {
-	stubNow()
-	var result error
-	var expectedResult string
-
-	// Test no args
-	result = Critical("this is an Critical message")
-	expectedResult = "1974-05-19 01:02:03 CRITICAL this is an Critical message"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Critical("this is an Critical message with variables", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 CRITICAL this is an Critical message with variables a b c"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
-func TestCriticalf(t *testing.T) {
-	stubNow()
-	var result error
-	var expectedResult string
-
-	// Test no args
-	result = Criticalf("this is an Critical message")
-	expectedResult = "1974-05-19 01:02:03 CRITICAL this is an Critical message"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-
-	// Test with args
-	result = Criticalf("this is an Critical message with variables %s %s %s", "a", "b", "c")
-	expectedResult = "1974-05-19 01:02:03 CRITICAL this is an Critical message with variables a b c"
-	if result.Error() != expectedResult {
-		t.Errorf("Expected log output of '%s' but got '%s'", expectedResult, result)
-	}
-}
-
 func TestLogLevelFromString(t *testing.T) {
 	var result LogLevel
 	var err error
